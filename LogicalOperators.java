@@ -22,4 +22,4 @@ public class LogicalOperators {
         System.out.println("Is eligible for loan: " + isEligibleForLoan);
     }
 }
- 
+  
