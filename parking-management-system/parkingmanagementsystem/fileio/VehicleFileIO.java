@@ -14,65 +14,65 @@ public class VehicleFileIO {
         if (!f.exists()) f.createNewFile();
 }
 
-    public static String getAvailableSlot() {
+    public static String getAvailableSlot() throws IOException {
         for (String slot : SLOTS) {
             if (!isSlotOccupied(slot)) return slot;
         }
         return null;
     }
 
-    public static boolean isSlotOccupied(String slot){
+    public static boolean isSlotOccupied(String slot) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = br.readLine()) != null) {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getParkingSlot().equals(slot)) return true;
             }
-        } catch (IOException ignored) {}
+        }
         return false;
     }
 
-    public static boolean vehicleIdExists(String vehicleId) {
+    public static boolean vehicleIdExists(String vehicleId) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = br.readLine()) != null) {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getVehicleId().equals(vehicleId)) return true;
             }
-        } catch (IOException ignored) {}
+        }
         return false;
     }
 
-    public static boolean plateExists(String numberPlate) {
+    public static boolean plateExists(String numberPlate) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = br.readLine()) != null) {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getNumberPlate().equalsIgnoreCase(numberPlate)) return true;
             }
-        } catch (IOException ignored) {}
+        }
         return false;
     }
 
-    public static boolean driverNameExists(String driverName) {
+    public static boolean driverNameExists(String driverName) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = br.readLine()) != null) {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getDriverName().equalsIgnoreCase(driverName)) return true;
             }
-        } catch (IOException ignored) {}
+        }
         return false;
     }
 
-    public static int countRecords() {
+    public static int countRecords() throws IOException {
         int count = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (Vehicle.fromLine(line) != null) count++;
             }
-        } catch (IOException ignored) {}
+        }
         return count;
     }
 
@@ -111,7 +111,7 @@ public class VehicleFileIO {
         return found;
     }
 
-    public static Object[][] getAllVehicles() {
+    public static Object[][] getAllVehicles() throws IOException {
         int total       = countRecords();
         Object[][] rows = new Object[total][6];
         int idx         = 0;
@@ -126,12 +126,12 @@ public class VehicleFileIO {
                     idx++;
                 }
             }
-        } catch (IOException ignored) {}
+        }
         return rows;
     }
 
 
-    public static Object[][] searchVehicles(String keyword) {
+    public static Object[][] searchVehicles(String keyword) throws IOException {
         String kw = keyword.toLowerCase();
 
         int matchCount = 0;
@@ -141,8 +141,7 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && matches(v, kw)) matchCount++;
             }
-        } catch (IOException ignored) {}
-
+        }
 
         Object[][] results = new Object[matchCount][6];
         int idx = 0;
@@ -156,7 +155,7 @@ public class VehicleFileIO {
                     idx++;
                 }
             }
-        } catch (IOException ignored) {}
+        }
         return results;
     }
 

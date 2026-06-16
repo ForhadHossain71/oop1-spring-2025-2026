@@ -261,8 +261,13 @@ public class ParkingGUI extends JFrame {
         }
     }
     private void refreshSlot() {
-        String slot = VehicleFileIO.getAvailableSlot();
-        parkingSlotField.setText(slot != null ? slot : "FULL - No Slot Available");
+        try {
+            String slot = VehicleFileIO.getAvailableSlot();
+            parkingSlotField.setText(slot != null ? slot : "FULL - No Slot Available");
+        } catch (IOException ex) {
+            showError("Error reading parking slots: " + ex.getMessage());
+            parkingSlotField.setText("Error");
+        }
     }
 
     private boolean isValidId(String id) {
@@ -321,24 +326,30 @@ public class ParkingGUI extends JFrame {
 
         String plate = buildNumberPlate();
 
-        // Check parking capacity
-        String slot = VehicleFileIO.getAvailableSlot();
-        if (slot == null) {
-            showError("Parking lot is FULL! All 6 slots are occupied."+ System.lineSeparator()+ "A vehicle must exit before a new one can enter.");
-            return;
-        }
+        String slot;
+        try {
+            // Check parking capacity
+            slot = VehicleFileIO.getAvailableSlot();
+            if (slot == null) {
+                showError("Parking lot is FULL! All 6 slots are occupied."+ System.lineSeparator()+ "A vehicle must exit before a new one can enter.");
+                return;
+            }
 
-        // Duplicate checks
-        if (VehicleFileIO.vehicleIdExists(id)) {
-            showError("Duplicate Vehicle ID! A vehicle with ID " + id + " is already parked.");
-            return;
-        }
-        if (VehicleFileIO.driverNameExists(name)) {
-            showError("Duplicate Owner Name!\"" + name + "\" already has a vehicle parked."+ System.lineSeparator() + "The same owner cannot park two vehicles at once.");
-            return;
-        }
-        if (VehicleFileIO.plateExists(plate)) {
-            showError("Duplicate Number Plate!\nA vehicle with plate " + plate + " is already parked.");
+            // Duplicate checks
+            if (VehicleFileIO.vehicleIdExists(id)) {
+                showError("Duplicate Vehicle ID! A vehicle with ID " + id + " is already parked.");
+                return;
+            }
+            if (VehicleFileIO.driverNameExists(name)) {
+                showError("Duplicate Owner Name!\"" + name + "\" already has a vehicle parked."+ System.lineSeparator() + "The same owner cannot park two vehicles at once.");
+                return;
+            }
+            if (VehicleFileIO.plateExists(plate)) {
+                showError("Duplicate Number Plate!\nA vehicle with plate " + plate + " is already parked.");
+                return;
+            }
+        } catch (IOException ex) {
+            showError("Error reading vehicle data: " + ex.getMessage());
             return;
         }
 
@@ -458,20 +469,28 @@ public class ParkingGUI extends JFrame {
             return;
         }
 
-        Object[][] results = VehicleFileIO.searchVehicles(keyword);
-        tableModel.setRowCount(0);
-        for (Object[] r : results)
-            tableModel.addRow(r);
+        try {
+            Object[][] results = VehicleFileIO.searchVehicles(keyword);
+            tableModel.setRowCount(0);
+            for (Object[] r : results)
+                tableModel.addRow(r);
 
-        if (results.length == 0)
-            showInfo("No matching vehicle found for: \"" + keyword + "\"");
+            if (results.length == 0)
+                showInfo("No matching vehicle found for: \"" + keyword + "\"");
+        } catch (IOException ex) {
+            showError("Error searching vehicles: " + ex.getMessage());
+        }
     }
 
     private void viewAll() {
-        Object[][] rows = VehicleFileIO.getAllVehicles();
-        tableModel.setRowCount(0);
-        for (Object[] r : rows) {
-            if (r[0] != null) tableModel.addRow(r);
+        try {
+            Object[][] rows = VehicleFileIO.getAllVehicles();
+            tableModel.setRowCount(0);
+            for (Object[] r : rows) {
+                if (r[0] != null) tableModel.addRow(r);
+            }
+        } catch (IOException ex) {
+            showError("Error loading vehicles: " + ex.getMessage());
         }
         refreshSlot();
     }
@@ -509,7 +528,8 @@ public class ParkingGUI extends JFrame {
             Date entryDate = sdf.parse(entryStr);
             long diffMs = new Date().getTime() - entryDate.getTime();
             return diffMs / (1000 * 60);
-        } catch (Exception ex) {
+        } catch (java.text.ParseException ex) {
+            showError("Could not parse entry time '" + entryStr + "'. Defaulting to 1 hour.");
             return 60;
         }
     }

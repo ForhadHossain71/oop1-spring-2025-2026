@@ -29,16 +29,22 @@ public abstract class Book implements BookOperations {
     
     @Override
     public void addQuantity(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Cannot add negative quantity: " + amount);
+        }
         availableQuantity += amount;
     }
 
     @Override
     public void sellQuantity(int amount) {
-        if (amount <= availableQuantity) {
-            availableQuantity -= amount;
-        } else {
-            System.out.println("Not enough stock!");
+        if (amount < 0) {
+            throw new IllegalArgumentException("Cannot sell negative quantity: " + amount);
         }
+        if (amount > availableQuantity) {
+            throw new IllegalStateException(
+                    "Not enough stock! Requested: " + amount + ", available: " + availableQuantity);
+        }
+        availableQuantity -= amount;
     }
 
     public abstract void showDetails();
