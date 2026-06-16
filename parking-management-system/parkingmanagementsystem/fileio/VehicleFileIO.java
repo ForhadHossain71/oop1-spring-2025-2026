@@ -1,6 +1,9 @@
 package parkingmanagementsystem.fileio;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import parkingmanagementsystem.entity.Vehicle;
 
 public class VehicleFileIO {
@@ -12,7 +15,49 @@ public class VehicleFileIO {
     public static void createFileIfNotExists() throws IOException {
         File f = new File(FILE_NAME);
         if (!f.exists()) f.createNewFile();
-}
+    }
+
+    // ── shared file-scan utilities ──────────────────────────────────
+
+    /**
+     * Reads every Vehicle record from the file and returns those that
+     * satisfy the given predicate.
+     */
+    private static List<Vehicle> readVehicles(Predicate<Vehicle> filter) {
+        List<Vehicle> result = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Vehicle v = Vehicle.fromLine(line);
+                if (v != null && filter.test(v)) {
+                    result.add(v);
+                }
+            }
+        } catch (IOException ignored) {}
+        return result;
+    }
+
+    /** Returns true when at least one record matches the predicate. */
+    private static boolean anyMatch(Predicate<Vehicle> filter) {
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Vehicle v = Vehicle.fromLine(line);
+                if (v != null && filter.test(v)) return true;
+            }
+        } catch (IOException ignored) {}
+        return false;
+    }
+
+    private static Object[][] toRowArray(List<Vehicle> vehicles) {
+        Object[][] rows = new Object[vehicles.size()][6];
+        for (int i = 0; i < vehicles.size(); i++) {
+            rows[i] = vehicles.get(i).toRow();
+        }
+        return rows;
+    }
+
+    // ── public API (now delegates to shared utilities) ──────────────
 
     public static String getAvailableSlot() {
         for (String slot : SLOTS) {
@@ -21,59 +66,24 @@ public class VehicleFileIO {
         return null;
     }
 
-    public static boolean isSlotOccupied(String slot){
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && v.getParkingSlot().equals(slot)) return true;
-            }
-        } catch (IOException ignored) {}
-        return false;
+    public static boolean isSlotOccupied(String slot) {
+        return anyMatch(v -> v.getParkingSlot().equals(slot));
     }
 
     public static boolean vehicleIdExists(String vehicleId) {
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && v.getVehicleId().equals(vehicleId)) return true;
-            }
-        } catch (IOException ignored) {}
-        return false;
+        return anyMatch(v -> v.getVehicleId().equals(vehicleId));
     }
 
     public static boolean plateExists(String numberPlate) {
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && v.getNumberPlate().equalsIgnoreCase(numberPlate)) return true;
-            }
-        } catch (IOException ignored) {}
-        return false;
+        return anyMatch(v -> v.getNumberPlate().equalsIgnoreCase(numberPlate));
     }
 
     public static boolean driverNameExists(String driverName) {
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && v.getDriverName().equalsIgnoreCase(driverName)) return true;
-            }
-        } catch (IOException ignored) {}
-        return false;
+        return anyMatch(v -> v.getDriverName().equalsIgnoreCase(driverName));
     }
 
     public static int countRecords() {
-        int count = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (Vehicle.fromLine(line) != null) count++;
-            }
-        } catch (IOException ignored) {}
-        return count;
+        return readVehicles(v -> true).size();
     }
 
     public static void addVehicle(Vehicle v) throws IOException {
@@ -112,55 +122,17 @@ public class VehicleFileIO {
     }
 
     public static Object[][] getAllVehicles() {
-        int total       = countRecords();
-        Object[][] rows = new Object[total][6];
-        int idx         = 0;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null && idx < total) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null) {
-                    Object[] row = v.toRow();
-                    for (int c = 0; c < 6; c++) rows[idx][c] = row[c];
-                    idx++;
-                }
-            }
-        } catch (IOException ignored) {}
-        return rows;
+        return toRowArray(readVehicles(v -> true));
     }
-
 
     public static Object[][] searchVehicles(String keyword) {
         String kw = keyword.toLowerCase();
-
-        int matchCount = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && matches(v, kw)) matchCount++;
-            }
-        } catch (IOException ignored) {}
-
-
-        Object[][] results = new Object[matchCount][6];
-        int idx = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = br.readLine()) != null && idx < matchCount) {
-                Vehicle v = Vehicle.fromLine(line);
-                if (v != null && matches(v, kw)) {
-                    Object[] row = v.toRow();
-                    for (int c = 0; c < 6; c++) results[idx][c] = row[c];
-                    idx++;
-                }
-            }
-        } catch (IOException ignored) {}
-        return results;
+        return toRowArray(readVehicles(v -> matches(v, kw)));
     }
 
     private static boolean matches(Vehicle v, String kw) {
-        return v.getVehicleId().toLowerCase().contains(kw) || v.getDriverName().toLowerCase().contains(kw) || v.getNumberPlate().toLowerCase().contains(kw);
+        return v.getVehicleId().toLowerCase().contains(kw)
+            || v.getDriverName().toLowerCase().contains(kw)
+            || v.getNumberPlate().toLowerCase().contains(kw);
     }
 }

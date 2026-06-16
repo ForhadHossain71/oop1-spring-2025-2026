@@ -17,13 +17,8 @@ public class StoryBook extends Book {
     }
 
     public void showDetails() {
-        System.out.println("StoryBook:");
-        System.out.println("ISBN: " + getIsbn());
-        System.out.println("Title: " + getBookTitle());
-        System.out.println("Author: " + getAuthorName());
-        System.out.println("Price: " + getPrice());
-        System.out.println("Quantity: " + getAvailableQuantity());
+        printCommonDetails("StoryBook");
         System.out.println("Category: " + category);
-        System.out.println("----------------------");
+        printSeparator();
     }
 }

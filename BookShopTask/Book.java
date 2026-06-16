@@ -41,5 +41,18 @@ public abstract class Book implements BookOperations {
         }
     }
 
+    protected void printCommonDetails(String bookType) {
+        System.out.println(bookType + ":");
+        System.out.println("ISBN: " + isbn);
+        System.out.println("Title: " + bookTitle);
+        System.out.println("Author: " + authorName);
+        System.out.println("Price: " + price);
+        System.out.println("Quantity: " + availableQuantity);
+    }
+
+    protected void printSeparator() {
+        System.out.println("----------------------");
+    }
+
     public abstract void showDetails();
 }

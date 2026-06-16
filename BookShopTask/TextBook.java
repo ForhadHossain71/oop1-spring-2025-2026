@@ -17,13 +17,8 @@ public class TextBook extends Book {
     }
 
     public void showDetails() {
-        System.out.println("TextBook:");
-        System.out.println("ISBN: " + getIsbn());
-        System.out.println("Title: " + getBookTitle());
-        System.out.println("Author: " + getAuthorName());
-        System.out.println("Price: " + getPrice());
-        System.out.println("Quantity: " + getAvailableQuantity());
+        printCommonDetails("TextBook");
         System.out.println("Standard: " + standard);
-        System.out.println("----------------------");
+        printSeparator();
     }
 }

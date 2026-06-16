@@ -451,6 +451,13 @@ public class ParkingGUI extends JFrame {
         }
     }
 
+    private void populateTable(Object[][] rows) {
+        tableModel.setRowCount(0);
+        for (Object[] r : rows) {
+            if (r[0] != null) tableModel.addRow(r);
+        }
+    }
+
     private void searchVehicle() {
         String keyword = searchField.getText().trim();
         if (keyword.isEmpty()) {
@@ -459,20 +466,14 @@ public class ParkingGUI extends JFrame {
         }
 
         Object[][] results = VehicleFileIO.searchVehicles(keyword);
-        tableModel.setRowCount(0);
-        for (Object[] r : results)
-            tableModel.addRow(r);
+        populateTable(results);
 
         if (results.length == 0)
             showInfo("No matching vehicle found for: \"" + keyword + "\"");
     }
 
     private void viewAll() {
-        Object[][] rows = VehicleFileIO.getAllVehicles();
-        tableModel.setRowCount(0);
-        for (Object[] r : rows) {
-            if (r[0] != null) tableModel.addRow(r);
-        }
+        populateTable(VehicleFileIO.getAllVehicles());
         refreshSlot();
     }
 
