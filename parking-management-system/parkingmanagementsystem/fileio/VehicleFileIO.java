@@ -1,10 +1,13 @@
 package parkingmanagementsystem.fileio;
 
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import parkingmanagementsystem.entity.Vehicle;
 
 public class VehicleFileIO {
 
+    private static final Logger LOGGER = Logger.getLogger(VehicleFileIO.class.getName());
     private static final String FILE_NAME = "parkingmanagementsystem/fileio/vehicles.txt";
     private static final String TEMP_FILE = "parkingmanagementsystem/fileio/temp.txt";
     private static final String[] SLOTS   = { "A-1", "A-2", "A-3", "B-1", "B-2", "B-3" };
@@ -28,7 +31,9 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getParkingSlot().equals(slot)) return true;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error checking slot occupancy", e);
+        }
         return false;
     }
 
@@ -39,7 +44,9 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getVehicleId().equals(vehicleId)) return true;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error checking vehicle ID", e);
+        }
         return false;
     }
 
@@ -50,7 +57,9 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getNumberPlate().equalsIgnoreCase(numberPlate)) return true;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error checking plate", e);
+        }
         return false;
     }
 
@@ -61,7 +70,9 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && v.getDriverName().equalsIgnoreCase(driverName)) return true;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error checking driver name", e);
+        }
         return false;
     }
 
@@ -72,7 +83,9 @@ public class VehicleFileIO {
             while ((line = br.readLine()) != null) {
                 if (Vehicle.fromLine(line) != null) count++;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error counting records", e);
+        }
         return count;
     }
 
@@ -126,7 +139,9 @@ public class VehicleFileIO {
                     idx++;
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error reading all vehicles", e);
+        }
         return rows;
     }
 
@@ -141,7 +156,9 @@ public class VehicleFileIO {
                 Vehicle v = Vehicle.fromLine(line);
                 if (v != null && matches(v, kw)) matchCount++;
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error counting search matches", e);
+        }
 
 
         Object[][] results = new Object[matchCount][6];
@@ -156,7 +173,9 @@ public class VehicleFileIO {
                     idx++;
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error searching vehicles", e);
+        }
         return results;
     }
 

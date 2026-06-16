@@ -57,16 +57,54 @@ public class Vehicle {
         }
 
     public String toLine() {
-        return vehicleId + "," + driverName + "," + vehicleType + "," + numberPlate + "," + parkingSlot + "," + entryTime;
+        return escape(vehicleId) + "," + escape(driverName) + "," + escape(vehicleType)
+             + "," + escape(numberPlate) + "," + escape(parkingSlot) + "," + escape(entryTime);
     }
 
     public static Vehicle fromLine(String line) {
         if (line == null || line.trim().isEmpty())
             return null;
-        String[] data = line.split(",", -1);
+        String[] data = splitCsv(line);
         if (data.length != 6)
             return null;
         return new Vehicle(data[0], data[1], data[2], data[3], data[4], data[5]);
+    }
+
+    private static String escape(String field) {
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
+    }
+
+    private static String[] splitCsv(String line) {
+        java.util.List<String> fields = new java.util.ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (inQuotes) {
+                if (c == '"' && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"');
+                    i++;
+                } else if (c == '"') {
+                    inQuotes = false;
+                } else {
+                    current.append(c);
+                }
+            } else {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == ',') {
+                    fields.add(current.toString());
+                    current.setLength(0);
+                } else {
+                    current.append(c);
+                }
+            }
+        }
+        fields.add(current.toString());
+        return fields.toArray(new String[0]);
     }
 
     public Object[] toRow() {

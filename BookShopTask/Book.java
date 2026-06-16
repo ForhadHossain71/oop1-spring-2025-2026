@@ -29,11 +29,19 @@ public abstract class Book implements BookOperations {
     
     @Override
     public void addQuantity(int amount) {
+        if (amount <= 0) {
+            System.out.println("Amount to add must be positive!");
+            return;
+        }
         availableQuantity += amount;
     }
 
     @Override
     public void sellQuantity(int amount) {
+        if (amount <= 0) {
+            System.out.println("Amount to sell must be positive!");
+            return;
+        }
         if (amount <= availableQuantity) {
             availableQuantity -= amount;
         } else {
