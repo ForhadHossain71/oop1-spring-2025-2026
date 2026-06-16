@@ -52,10 +52,10 @@ public class BookShop implements BookShopOperations {
     }
 
     public Book[] getListOfBooks() {
-        return listOfBooks;
+        return java.util.Arrays.copyOf(listOfBooks, listOfBooks.length);
     }
 
     public void setListOfBooks(Book[] listOfBooks) {
-        this.listOfBooks = listOfBooks;
+        this.listOfBooks = java.util.Arrays.copyOf(listOfBooks, listOfBooks.length);
     }
 }
