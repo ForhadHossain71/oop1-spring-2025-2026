@@ -1,0 +1,11 @@
+# Build output
+build/
+
+# JUnit standalone jar
+lib/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.class
