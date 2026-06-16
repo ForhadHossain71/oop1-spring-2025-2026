@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiveStream Hub - Watch Live TV Channels</title>
+  <meta name="description" content="Watch live TV channels from around the world in one place. News, sports, entertainment, music, and more." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📺</text></svg>" />
+</head>
+<body>
+
+  <div class="live-tv-app">
+
+    <!-- ═══ Sidebar ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-tower-broadcast"></i>
+          </div>
+          <div class="logo-text">
+            <h1>LiveStream Hub</h1>
+            <span>Free Live TV</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="category-list" id="categoryList">
+        <div class="category-label">Categories</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="time-display">
+          <i class="fas fa-clock"></i>
+          <span>Local Time:</span>
+          <span class="time-value" id="currentTime">--:--</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="main-content">
+
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search channels, categories, or countries..." />
+          <span class="shortcut-hint">/</span>
+        </div>
+
+        <div class="top-bar-actions">
+          <button class="filter-btn" id="favFilterBtn" title="Show favorites">
+            <i class="fas fa-heart"></i>
+            <span>Favorites</span>
+          </button>
+          <span class="channel-counter" id="channelCount">0 channels</span>
+        </div>
+      </header>
+
+      <!-- Player Section -->
+      <section class="player-section" id="playerSection">
+        <div class="player-wrapper">
+          <video id="videoPlayer" playsinline></video>
+
+          <!-- Loading Spinner -->
+          <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <span>Loading stream...</span>
+          </div>
+
+          <!-- Error Overlay -->
+          <div class="player-overlay" id="playerOverlay">
+            <div class="error-icon">
+              <i class="fas fa-satellite-dish"></i>
+            </div>
+            <h3>Stream Unavailable</h3>
+            <p>This channel may be temporarily offline.</p>
+            <button class="retry-btn"><i class="fas fa-redo"></i> Retry</button>
+          </div>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+          <div class="player-info">
+            <div class="live-indicator" id="liveIndicator">
+              <i class="fas fa-circle"></i>
+              LIVE
+            </div>
+            <div class="player-channel-info">
+              <div class="player-channel-name" id="channelName">Select a channel</div>
+              <div class="player-channel-meta">
+                <span id="channelCategory">--</span>
+                <span class="dot"></span>
+                <span id="channelCountry">--</span>
+              </div>
+              <div class="player-channel-desc" id="channelDesc"></div>
+            </div>
+          </div>
+          <div class="player-actions">
+            <div class="volume-control">
+              <i class="fas fa-volume-up" id="volumeIcon"></i>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.8" />
+            </div>
+            <button class="player-btn" id="favBtn" title="Add to favorites">
+              <i class="far fa-heart"></i>
+            </button>
+            <button class="player-btn" id="miniPlayerBtn" title="Mini player">
+              <i class="fas fa-compress"></i>
+            </button>
+            <button class="player-btn" id="fullscreenBtn" title="Fullscreen">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Channel Grid -->
+      <section class="channels-section">
+        <h2 class="section-title">
+          <i class="fas fa-tv"></i>
+          All Channels
+        </h2>
+        <div class="channel-grid" id="channelGrid"></div>
+        <div class="no-results" id="noResults">
+          <i class="fas fa-search"></i>
+          <h3>No channels found</h3>
+          <p>Try adjusting your search or filter criteria.</p>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>LiveStream Hub &mdash; Free live TV from around the world. All streams are publicly available.</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Channel Data -->
+  <script src="js/channels.js"></script>
+  <!-- App Logic -->
+  <script src="js/app.js"></script>
+  <script>
+    // Store app reference before DOMContentLoaded fires
+    (function() {
+      const origInit = LiveTVApp.prototype.init;
+      LiveTVApp.prototype.init = function() {
+        document.querySelector('.live-tv-app').__app = this;
+        origInit.call(this);
+      };
+    })();
+  </script>
+</body>
+</html>
