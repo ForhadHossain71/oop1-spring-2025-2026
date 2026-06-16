@@ -108,21 +108,26 @@ class Gym {
         members = new Member[size];
     }
 
-    void addMember(Member m) {
+    boolean addMember(Member m) {
         if (count < members.length) {
             members[count++] = m;
+            return true;
         }
+        System.out.println("Cannot add member: gym is at full capacity (" + members.length + ").");
+        return false;
     }
 
-    void removeMember(String id) {
+    boolean removeMember(String id) {
         for (int i = 0; i < count; i++) {
             if (members[i].getMemberID().equals(id)) {
                 members[i] = members[count - 1];
                 members[count - 1] = null;
                 count--;
-                break;
+                return true;
             }
         }
+        System.out.println("Member with ID '" + id + "' not found.");
+        return false;
     }
 
     void showMembers() {
@@ -136,8 +141,13 @@ class Gym {
         double sum = 0;
 
         for (int i = 0; i < count; i++) {
-            IMemberOperation op = (IMemberOperation) members[i];
-            sum += op.discountedFee();
+            if (members[i] instanceof IMemberOperation) {
+                IMemberOperation op = (IMemberOperation) members[i];
+                sum += op.discountedFee();
+            } else {
+                System.out.println("Warning: member '" + members[i].getMemberID()
+                        + "' does not support fee calculation, skipping.");
+            }
         }
 
         System.out.println("Total Revenue: " + sum);
