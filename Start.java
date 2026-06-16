@@ -35,6 +35,19 @@ abstract class Member {
         this.monthlyFee = monthlyFee;
     }
 
+    public double discountedFee() {
+        if (getMonthlyFee() > 8000) {
+            return getMonthlyFee() * 0.92;
+        }
+        return getMonthlyFee();
+    }
+
+    protected void printCommonInfo(String memberType) {
+        System.out.println(memberType + " Member ID: " + getMemberID());
+        System.out.println("Fee: " + getMonthlyFee());
+        System.out.println("Discounted Fee: " + discountedFee());
+    }
+
     abstract void showInfo();
 }
 
@@ -50,17 +63,8 @@ class PlatinumMember extends Member implements IMemberOperation {
         this.freeSessions = freeSessions;
     }
 
-    public double discountedFee() {
-        if (getMonthlyFee() > 8000) {
-            return getMonthlyFee() * 0.92;
-        }
-        return getMonthlyFee();
-    }
-
     void showInfo() {
-        System.out.println("Platinum Member ID: " + getMemberID());
-        System.out.println("Fee: " + getMonthlyFee());
-        System.out.println("Discounted Fee: " + discountedFee());
+        printCommonInfo("Platinum");
         System.out.println("Free Sessions: " + freeSessions);
         System.out.println();
     }
@@ -78,17 +82,8 @@ class StandardMember extends Member implements IMemberOperation {
         this.groupClassAccess = groupClassAccess;
     }
 
-    public double discountedFee() {
-        if (getMonthlyFee() > 8000) {
-            return getMonthlyFee() * 0.92;
-        }
-        return getMonthlyFee();
-    }
-
     void showInfo() {
-        System.out.println("Standard Member ID: " + getMemberID());
-        System.out.println("Fee: " + getMonthlyFee());
-        System.out.println("Discounted Fee: " + discountedFee());
+        printCommonInfo("Standard");
         System.out.println("Group Class Access: " + groupClassAccess);
         System.out.println();
     }
