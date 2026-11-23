@@ -209,5 +209,3 @@ The window opens with three sample vehicles already parked.
 **Md. Forhad Hossain Mahamud**
 B.Sc. in Computer Science & Engineering, American International University-Bangladesh
 
-- Portfolio: [forhad-portfolio-sepia.vercel.app](https://forhad-portfolio-sepia.vercel.app)
-- GitHub: [@ForhadHossain71](https://github.com/ForhadHossain71)
