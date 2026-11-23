@@ -1,0 +1,5 @@
+# Compiled Java classes
+*.class
+
+# Temp file created while deleting a record
+parking-management-system/parkingmanagementsystem/fileio/temp.txt
